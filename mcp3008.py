@@ -11,8 +11,8 @@ pin_names = [
 class Mcp3008:
     def __init__(self, io):
         self.clk = io.outpin(23)
-        self.dout = io.outpin(29)
-        self.din = io.inpin(31)
+        self.dout = io.inpin(29)
+        self.din = io.outpin(31)
         self.not_cs = io.outpin(33)
 
     def start(self):
@@ -36,7 +36,7 @@ class Mcp3008:
         command = int('11000', 2) | channel
         bits = command << 3
         for _ in range(5):
-           self.dout.set(bits & 0x80)
+           self.din.set(bits & 0x80)
            self.clk.on()
            self.clk.off()
            bits <<= 1
@@ -47,7 +47,8 @@ class Mcp3008:
            self.clk.on()
            self.clk.off()
            adcout <<= 1
-           adcout |= self.din.on()
+           bit = self.dout.on()
+           adcout |= bit
 
         adcout >>= 1
         return adcout
