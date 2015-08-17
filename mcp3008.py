@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-from io import Input, Output
+from io import IO
 
 pin_names = [
     "ch0", "ch1", "ch2", "ch3", "ch4", "ch5", "ch6", "ch7",
@@ -8,34 +8,62 @@ pin_names = [
         ]
 
 
-class Pin:
-    def __init__(self, name, gpiopin):
-        self.name = name
-        self.pin = gpiopin
-
-
 class Mcp3008:
-    def __init__(self):
-        self.clk = Pin("clk", Input(24))
-        self.dout = Pin("dout", Output(30))
-        self.din = Pin("din", Input(32))
-        self.not_cs = Pin("!cs", Input(34))
+    def __init__(self, io):
+        self.clk = io.outpin(23)
+        self.dout = io.outpin(29)
+        self.din = io.inpin(31)
+        self.not_cs = io.outpin(33)
+
+    def start(self):
+        self.clk.start()
+        self.dout.start()
+        self.din.start()
+        self.not_cs.start()
 
     def read(self, channel): #single-ended
+        if channel < 0 or channel > 7:
+            raise RuntimeError("channel must be between 0 and 7")
+        self.not_cs.on()
+        self.clk.off()
+        self.not_cs.off()
         self.request_conversion(channel)
         result = self.read_result()
+        self.not_cs.off()
         return result
 
     def request_conversion(self, channel):
-        pass
+        command = int('11000', 2) | channel
+        bits = command << 3
+        for _ in range(5):
+           self.dout.set(bits & 0x80)
+           self.clk.on()
+           self.clk.off()
+           bits <<= 1
 
     def read_result(self):
-        pass
+        adcout = 0
+        for _ in range(12):
+           self.clk.on()
+           self.clk.off()
+           adcout <<= 1
+           adcout |= self.din.on()
+
+        adcout >>= 1
+        return adcout
 
 def main():
-    mcp = Mcp3008()
-    value = mcp.read(sys.argv[1])
+    import sys
+    import RPi
+    gpio = IO(RPi.GPIO)
+    mcp = Mcp3008(gpio)
+    
+    gpio.start()
+    mcp.start()
+
+    value = mcp.read(int(sys.argv[1]))
     print("value: {}".format(value))
+    gpio.stop()
 
 
 if __name__ == "__main__":
