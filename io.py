@@ -57,7 +57,6 @@ class Input:
         self.callbacks.append(what)
 
     def __event_detect(self, channel):
-        print("event detected for channel {}".format(channel))
         if channel != self.pin:
             print("!!!! event detected for wrong channel {}".format(channel))
         state = self.on()
