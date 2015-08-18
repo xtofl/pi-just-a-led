@@ -19,9 +19,18 @@ def sample(mcp):
 
 def publish(what):
     print(what)
+    import httplib
+    connection =  httplib.HTTPConnection('saraxtofl.be:80')
+    body_content = "{}".format(what)
+    connection.request('POST', '/pi-just-a-led/index.php', body_content)
+    result = connection.getresponse()
+    if not result:
+        print("putting has failed: {}".format(result))
 
 def main():
-    interval = float(sys.argv[1])
+    interval = None
+    if len(sys.argv) > 1:
+        interval = float(sys.argv[1])
     from RPi import GPIO
     from justaled.mcp3008 import Mcp3008
     from justaled.io import IO
@@ -30,7 +39,8 @@ def main():
     mcp = Mcp3008(io, reference_voltage=3.3)
     io.start()
     mcp.start()
-    while True:
+    publish(sample(mcp))
+    while interval:
         publish(sample(mcp))
         sleep(interval)
 
