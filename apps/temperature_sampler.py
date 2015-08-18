@@ -3,6 +3,7 @@ import sys
 import os
 from time import sleep
 import datetime
+import httplib
 
 #FIXME: add 'justaled' to the PYTHONPATH
 sys.path.append(os.path.dirname(os.path.dirname(sys.argv[0])))
@@ -17,11 +18,11 @@ def sample(mcp):
     resistance = 10.0 / ( 1.0 - voltage / mcp.vref )
     temperature = epoxy_thermistor.temperature(resistance)
     now = datetime.datetime.now()
-    return "{}, {}V, {} kOhm, {} C".format(now, voltage, resistance, temperature)
+    return (now, voltage, resistance, temperature)
 
 def publish(what):
-    print(what)
-    import httplib
+    now, voltage, resistance, temperature = what
+    print( "{}, {}V, {} kOhm, {} C".format(now, voltage, resistance, temperature))
     connection =  httplib.HTTPConnection('saraxtofl.be:80')
     body_content = "{}".format(what)
     connection.request('POST', '/pi-just-a-led/index.php', body_content)
