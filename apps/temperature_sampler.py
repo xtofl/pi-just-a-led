@@ -2,6 +2,7 @@
 import sys
 import os
 from time import sleep
+import datetime
 
 #FIXME: add 'justaled' to the PYTHONPATH
 sys.path.append(os.path.dirname(os.path.dirname(sys.argv[0])))
@@ -15,7 +16,8 @@ def sample(mcp):
     voltage = mcp.read(channel=0)
     resistance = 10.0 / ( 1.0 - voltage / mcp.vref )
     temperature = epoxy_thermistor.temperature(resistance)
-    return "{}V, {} kOhm, {} C".format(voltage, resistance, temperature)
+    now = datetime.datetime.now()
+    return "{}, {}V, {} kOhm, {} C".format(now, voltage, resistance, temperature)
 
 def publish(what):
     print(what)
