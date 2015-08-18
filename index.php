@@ -1,23 +1,33 @@
 <?php
 
+?>
+<html>
+<head>
+</head>
+<body>
+<?
+
 switch ($_SERVER['REQUEST_METHOD'] )
 {
-case 'PUT':
+case 'POST':
 	print("putting data");
-	$putdata = fopen("php://input", "r");
-	$outputfile = fopen("temperatures.txt", "a");
-	while($data = fread($putdata, 1024)) {
-		fwrite($outputfile, $data);
+	$putdata = file("php://input");
+	$outputfile = fopen("temperatures.csv", "a");
+        foreach($putdata as $line) {
+		fwrite($outputfile, $line."\n");
 	}
 	break;
 case 'GET':
-	$input = fopen("temperatures.txt", "r");
-	while($data = fread($input, 1024)) {
-		print($data);
+	$input = file("temperatures.csv");
+        print("<ul>\n");
+	foreach($input as $line) {
+                print("<li>".$line."</li>");
 	}
+        print("</ul>\n");
 	break;
 default:
 	print("what method is this? " . $_SERVER['request_method']);
 }
 
 ?>
+</body>
