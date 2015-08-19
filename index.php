@@ -19,10 +19,13 @@ case 'POST':
 	break;
 case 'GET':
 	$input = file("temperatures.csv");
-        print("<ul>\n");
+        $data = array();
 	foreach($input as $line) {
-                print("<li>".$line."</li>");
+		$data[]=$line;
 	}
+        print("<ul>\n");
+        foreach(array_reverse($data) as $line)
+                print("<li>".$line."</li>");
         print("</ul>\n");
 	break;
 default:
