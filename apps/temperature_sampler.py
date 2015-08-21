@@ -15,7 +15,7 @@ def resistorvalue(inputvoltage, voltage, otherresistor):
 
 def sample(mcp):
     voltage = mcp.read(channel=0)
-    resistance = 10.0 / ( 1.0 - voltage / mcp.vref )
+    resistance = resistorvalue(mcp.vref, voltage, 10.0)
     temperature = epoxy_thermistor.temperature(resistance)
     now = datetime.datetime.now()
     return (now, voltage, resistance, temperature)
