@@ -24,7 +24,7 @@ class Mcp3008:
 
     def read(self, channel): #single-ended
         raw = self.read_raw(channel)
-        voltage = raw/1024.0 * (1.0 / self.vref)
+        voltage = raw * self.vref / 1024.0
         return voltage
 
     def read_raw(self, channel): #single-ended
