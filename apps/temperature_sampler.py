@@ -9,13 +9,13 @@ import httplib
 sys.path.append(os.path.dirname(os.path.dirname(sys.argv[0])))
 from justaled import epoxy_thermistor
 
-def resistorvalue(inputvoltage, voltage, otherresistor):
-   return otherresistor * (voltage / (inputvoltage - voltage))
+def voltage_divider_R2(inputvoltage, voltage, R1):
+   return R1 * (voltage / (inputvoltage - voltage))
 
 
 def sample(mcp):
     voltage = mcp.read(channel=0)
-    resistance = resistorvalue(mcp.vref, voltage, 10.0)
+    resistance = voltage_divider_R2(mcp.vref, voltage, R1=10000.0)
     temperature = epoxy_thermistor.temperature(resistance)
     now = datetime.datetime.now()
     return (now, voltage, resistance, temperature)

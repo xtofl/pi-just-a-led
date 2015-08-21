@@ -44,20 +44,20 @@ referencetable = """-40 277.2 1 30.25 42 4.915 83 1.128 124 0.3434 165 0.1265
 0 31.77 41 5.117 82 1.165 123 0.3530 164 0.1293""".split()
 
 celcius_to_ohm = sorted( 
-        (int(k), float(v))
+        (int(k), 1000.0 * float(v))
         for k, v in 
             zip( referencetable[0::2], referencetable[1::2] ))
 
 ohm_to_celcius = sorted(
-        (float(v), int(k))
+        (1000.0 * float(v), int(k))
         for k, v in 
             zip( referencetable[0::2], referencetable[1::2] ))
 
 def temperature(R):
     """
-    >>> temperature(10.00)
+    >>> temperature(10000)
     25.0
-    >>> "{0:.2f}".format(round(temperature(10.20), 2))
+    >>> "{0:.2f}".format(round(temperature(10200), 2))
     '24.56'
     """
     import numpy
