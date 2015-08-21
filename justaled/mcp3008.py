@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-from io import IO
+from justaled.io import IO
 
 pin_names = [
     "ch0", "ch1", "ch2", "ch3", "ch4", "ch5", "ch6", "ch7",

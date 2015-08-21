@@ -1,4 +1,8 @@
-from RPi import GPIO
+try:
+    from RPi import GPIO
+except ImportError:
+    GPIO = None
+    print("probably you need to have RPi installed")
 
 def init_gpio():
     GPIO.setmode(GPIO.BOARD)
