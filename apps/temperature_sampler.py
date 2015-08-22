@@ -5,6 +5,7 @@ from time import sleep
 import datetime
 import httplib
 import json
+import urlparse
 
 #FIXME: add 'justaled' to the PYTHONPATH
 sys.path.append(os.path.dirname(os.path.dirname(sys.argv[0])))
@@ -39,11 +40,11 @@ class Sample:
             'temperature': {'value': self.temperature, 'unit': 'C'}
         })
 
-def publish(what):
+def publish(what, where):
     print(what.as_csv())
-    connection =  httplib.HTTPConnection('saraxtofl.be:80')
+    connection =  httplib.HTTPConnection('{}:{}'.format(where.hostname, where.port))
     body_content = what.as_json()
-    connection.request('POST', '/pi-just-a-led/index.php', body_content)
+    connection.request('POST', where.path, body_content)
     result = connection.getresponse()
     if not result:
         print("putting has failed: {}".format(result))
@@ -52,6 +53,7 @@ def main():
     import argparse
     parser = argparse.ArgumentParser(description="temperature sampler & publisher")
     parser.add_argument('--format', help="output format [json|csv]")
+    parser.add_argument('--target-url', dest="target", help="url to publish to")
     parser.add_argument('--interval-seconds', type=float, dest="interval", help="sampling interval")
     options = parser.parse_args()
 
@@ -63,10 +65,11 @@ def main():
     mcp = Mcp3008(io, reference_voltage=3.3)
     io.start()
     mcp.start()
-    publish(Sample('pi-01', mcp))
+    target = urlparse.urlparse(options.target)
+    publish(Sample('pi-01', mcp), target)
     while options.interval:
         sleep(options.interval)
-        publish(Sample('pi-01', mcp))
+        publish(Sample('pi-01', mcp), target)
 
 if __name__ == "__main__":
     main()
