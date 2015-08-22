@@ -12,20 +12,20 @@ switch ($_SERVER['REQUEST_METHOD'] )
 case 'POST':
 	print("putting data");
 	$putdata = file("php://input");
-	$outputfile = fopen("temperatures.csv", "a");
+	$outputfile = fopen("temperatures.jsonsamples", "a");
         foreach($putdata as $line) {
-		fwrite($outputfile, $line."\n");
+		fwrite($outputfile, $line.", ");
 	}
 	break;
 case 'GET':
-	$input = file("temperatures.csv");
-        $data = array();
-	foreach($input as $line) {
-		$data[]=$line;
-	}
+	$input = rtrim(file_get_contents("temperatures.jsonsamples"), ', ');
+       
+        $data = json_decode("[\n".$input."\n]");
+        if(!$data) { print(json_last_error()); 
+}
         print("<ul>\n");
         foreach(array_reverse($data) as $line)
-                print("<li>".$line."</li>");
+                print("<li>".$line->time.": ".$line->temperature->{"value"}."</li>");
         print("</ul>\n");
 	break;
 default:
