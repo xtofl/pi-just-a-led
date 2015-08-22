@@ -31,9 +31,11 @@ def publish(what):
         print("putting has failed: {}".format(result))
 
 def main():
-    interval = None
-    if len(sys.argv) > 1:
-        interval = float(sys.argv[1])
+    import argparse
+    parser = argparse.ArgumentParser(description="temperature sampler & publisher")
+    parser.add_argument('--interval-seconds', type=float, dest="interval", help="sampling interval")
+    options = parser.parse_args()
+
     from RPi import GPIO
     from justaled.mcp3008 import Mcp3008
     from justaled.io import IO
@@ -43,9 +45,9 @@ def main():
     io.start()
     mcp.start()
     publish(sample(mcp))
-    while interval:
+    while options.interval:
+        sleep(options.interval)
         publish(sample(mcp))
-        sleep(interval)
 
 if __name__ == "__main__":
     main()
