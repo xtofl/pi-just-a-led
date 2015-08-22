@@ -4,6 +4,7 @@ import os
 from time import sleep
 import datetime
 import httplib
+import json
 
 #FIXME: add 'justaled' to the PYTHONPATH
 sys.path.append(os.path.dirname(os.path.dirname(sys.argv[0])))
@@ -13,18 +14,35 @@ def voltage_divider_R2(inputvoltage, voltage, R1):
    return R1 * (voltage / (inputvoltage - voltage))
 
 
-def sample(mcp):
-    voltage = mcp.read(channel=0)
-    resistance = voltage_divider_R2(mcp.vref, voltage, R1=10000.0)
-    temperature = epoxy_thermistor.temperature(resistance)
-    now = datetime.datetime.now()
-    return (now, voltage, resistance, temperature)
+class Sample:
+    def __init__(self, source, mcp, channel=0):
+        self.source = source
+        self.mcp = mcp
+        self.value = None
+        self.voltage = mcp.read(channel=channel)
+        self.resistance = voltage_divider_R2(mcp.vref, self.voltage, R1=10000.0)
+        self.temperature = epoxy_thermistor.temperature(self.resistance)
+        self.now = datetime.datetime.now()
+
+    def value(self):
+        return (self.now, self.voltage, self.resistance, self.temperature)
+
+    def as_csv(self):
+        return "{}, {}V, {} kOhm, {} C".format(self.now, self.voltage, self.resistance, self.temperature)
+
+    def as_json(self):
+        return json.dumps({
+            'source': self.source,
+            'time': self.now.isoformat(),
+            'voltage': self.voltage,
+            'thermistor': {'value': self.resistance, 'unit': 'Ohm'},
+            'temperature': {'value': self.temperature, 'unit': 'C'}
+        })
 
 def publish(what):
-    now, voltage, resistance, temperature = what
-    print( "{}, {}V, {} kOhm, {} C".format(now, voltage, resistance, temperature))
+    print(what.as_csv())
     connection =  httplib.HTTPConnection('saraxtofl.be:80')
-    body_content = "{}".format(what)
+    body_content = what.as_json()
     connection.request('POST', '/pi-just-a-led/index.php', body_content)
     result = connection.getresponse()
     if not result:
@@ -33,6 +51,7 @@ def publish(what):
 def main():
     import argparse
     parser = argparse.ArgumentParser(description="temperature sampler & publisher")
+    parser.add_argument('--format', help="output format [json|csv]")
     parser.add_argument('--interval-seconds', type=float, dest="interval", help="sampling interval")
     options = parser.parse_args()
 
@@ -44,10 +63,10 @@ def main():
     mcp = Mcp3008(io, reference_voltage=3.3)
     io.start()
     mcp.start()
-    publish(sample(mcp))
+    publish(Sample('pi-01', mcp))
     while options.interval:
         sleep(options.interval)
-        publish(sample(mcp))
+        publish(Sample('pi-01', mcp))
 
 if __name__ == "__main__":
     main()
