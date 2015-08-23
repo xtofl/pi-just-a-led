@@ -50,7 +50,7 @@ case 'POST':
 	$putdata = file("php://input");
 	$outputfile = fopen("temperatures.jsonsamples", "a");
         foreach($putdata as $line) {
-		fwrite($outputfile, $line.", ");
+		fwrite($outputfile, "\n".$line.", ");
 	}
 	break;
 case 'GET':
@@ -67,11 +67,14 @@ data = [
 ?>
 ];
 </script>
+<ul>
+<script>
+	data.forEach(function(sample){
+		document.write("<li>" + sample[0].toLocaleString() + ": " + sample[1] + "</li>");
+        });
+</script>
+</ul>
 <?
-        print("<ul>\n");
-        foreach(array_reverse($data) as $line)
-                print("<li>".$line->time.": ".$line->temperature->{"value"}."</li>");
-        print("</ul>\n");
 	break;
 default:
 	print("what method is this? " . $_SERVER['request_method']);
