@@ -12,8 +12,8 @@
       function drawChart() {
         var dataTable = new google.visualization.DataTable();
 
-        dataTable.addColumn({ type: 'date', id: 'Time' });
-        dataTable.addColumn({ type: 'number', id: 'Temperature' });
+        dataTable.addColumn({ type: 'date', id: 'Time', label: 'Time' });
+        dataTable.addColumn({ type: 'number', id: 'Temperature', label: 'Temperature' });
         dataTable.addRows(data);
 
         var options = {
