@@ -40,8 +40,11 @@ class Sample:
             'temperature': {'value': self.temperature, 'unit': 'C'}
         })
 
-def publish(what, where):
+def publish(what, where, samplefile):
     print(what.as_csv())
+    if samplefile:
+        with open(samplefile, 'a') as f:
+            f.write(what.as_json() + "\n")
     connection =  httplib.HTTPConnection('{}:{}'.format(where.hostname, where.port))
     body_content = what.as_json()
     connection.request('POST', where.path, body_content)
@@ -55,6 +58,7 @@ def main():
     parser.add_argument('--format', help="output format [json|csv]")
     parser.add_argument('--target-url', dest="target", help="url to publish to")
     parser.add_argument('--interval-seconds', type=float, dest="interval", help="sampling interval")
+    parser.add_argument('--samplefile', type=str, help="file to contain samples")
     options = parser.parse_args()
 
     from RPi import GPIO
@@ -66,10 +70,10 @@ def main():
     io.start()
     mcp.start()
     target = urlparse.urlparse(options.target)
-    publish(Sample('pi-01', mcp), target)
+    publish(Sample('pi-01', mcp), target, options.samplefile)
     while options.interval:
         sleep(options.interval)
-        publish(Sample('pi-01', mcp), target)
+        publish(Sample('pi-01', mcp), target, options.samplefile)
 
 if __name__ == "__main__":
     main()
