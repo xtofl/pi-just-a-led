@@ -13,7 +13,7 @@
         var dataTable = new google.visualization.DataTable();
 
         dataTable.addColumn({ type: 'date', id: 'Time', label: 'Time' });
-        dataTable.addColumn({ type: 'number', id: 'Temperature', label: 'Temperature' });
+        dataTable.addColumn({ type: 'number', id: 'Temperature', label: 'Temperature (\u00B0C)' });
         dataTable.addRows(data);
 
         var options = {
@@ -67,13 +67,14 @@ data = [
 ?>
 ];
 </script>
-<ul>
+<table border='1'>
+<tr><th>Time</th><th>Temperature (&deg;C)</th></tr>
 <script>
 	data.forEach(function(sample){
-		document.write("<li>" + sample[0].toLocaleString() + ": " + sample[1] + "</li>");
+		document.write("<tr><td>" + sample[0].toLocaleString() + "</td><td>" + sample[1] + "</td></tr>");
         });
 </script>
-</ul>
+</table>
 <?
 	break;
 default:
