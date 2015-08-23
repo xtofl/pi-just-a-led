@@ -6,15 +6,24 @@ import httplib
 import json
 import urlparse
 import numpy as np
+import smtplib
+from email.mime.text import MIMEText
 
 #FIXME: add 'justaled' to the PYTHONPATH
 sys.path.append(os.path.dirname(os.path.dirname(sys.argv[0])))
 
+def sendmail(status, options):
+    message = MIMEText(status)
+    message['Subject'] = status
+    message['From'] = 'your raspberry pi'
+    message['To'] = options.mailto
+    smtp = smtplib.SMTP('localhost')
+    smtp.sendmail('your pi', options.mailto.split(";"), message.as_string())
 
-def analyze_sample_file(filename, window):
-    with open(filename, 'r') as f:
+def analyze_sample_file(options):
+    with open(options.samplefile, 'r') as f:
         lines = [line for line in f]
-    last_lines = lines[-window:]
+    last_lines = lines[-options.window:]
     samples = [json.loads(line) for line in last_lines]
 
     times = np.array([s['time'] for s in samples])
@@ -22,7 +31,7 @@ def analyze_sample_file(filename, window):
 
     result = analyze(times, temperatures)
     if result:
-        print(result)
+        sendmail(result, options)
 
 
 def analyze(times, temperatures):
@@ -44,9 +53,10 @@ def main():
     parser = argparse.ArgumentParser(description="temperature trend analysis")
     parser.add_argument('--sample-file', dest="samplefile", help="file containing json samples")
     parser.add_argument('--window', help="size of time window to analyze", type=int, default=3)
+    parser.add_argument('--mailto')
     options = parser.parse_args()
 
-    analyze_sample_file(options.samplefile, options.window)
+    analyze_sample_file(options)
 
 if __name__ == "__main__":
     main()
