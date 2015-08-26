@@ -1,5 +1,4 @@
 <?php
-
 ?>
 <html>
 <head>
@@ -55,8 +54,19 @@ case 'POST':
 	break;
 case 'GET':
 	$input = rtrim(file_get_contents("temperatures.jsonsamples"), ', ');
-        $data = json_decode("[\n".$input."\n]");
-        if(!$data) { print(json_last_error()); }
+	$objects = [];
+	$errors = [];
+	foreach(explode(", \n", $input) as $n => $line){
+		$jsonstring = $line;
+		$object = json_decode($jsonstring);
+		if (!$object) {
+			print("json error: ".json_last_error()." at line $n<br>$line");
+		} else {
+			$objects[] = $object;
+		}
+	}
+        $data = $objects;
+        if(!$data) { print("json error: ".json_last_error()); }
        
 ?><div id="timeline"></div>
 <script>
