@@ -6,6 +6,12 @@ function samples_text() {
 
 function all($ample) { return true; }
 
+function last_hour($sample) {
+	$last = strtotime("-1 hour");
+	return strtotime($sample->time) > $last;
+}
+
+
 function last_day($sample) {
 	$lastweek = strtotime("-1 day");
 	return strtotime($sample->time) > $lastweek;
@@ -60,7 +66,8 @@ function filter() {
 		case "all": return "all";
 		case "week": return "last_week";
 		case "day": return "last_day";
-		default: return "last_week";
+		case "hour": return "last_hour";
+		default: return "last_hour";
 	}
 }
 $filter = filter();
