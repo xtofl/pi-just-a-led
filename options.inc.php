@@ -1,6 +1,6 @@
 <?php
 
-function samples_text($file) {
+function samples_text($filter, $file) {
 	return rtrim(file_get_contents($file));
 }
 
@@ -23,7 +23,7 @@ function last_week($sample) {
 }
 
 function samples_json($filter, $file) {
-	$input = rtrim(samples_text($file));
+	$input = rtrim(samples_text($filter, $file));
 	$objects = [];
 	$errors = [];
 	foreach(explode("\n", $input) as $n => $line){
