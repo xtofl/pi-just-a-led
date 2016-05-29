@@ -1,4 +1,6 @@
 <?php
+require_once('options.inc.php');
+$filter = filter();
 ?>
 <html>
 <head>
@@ -53,20 +55,11 @@ case 'POST':
 	}
 	break;
 case 'GET':
-	$input = rtrim(file_get_contents("temperatures.jsonsamples"), ', ');
-	$objects = [];
-	$errors = [];
-	foreach(explode(", \n", $input) as $n => $line){
-		$jsonstring = $line;
-		$object = json_decode($jsonstring);
-		if (!$object) {
-			print("json error: ".json_last_error()." at line $n<br>$line");
-		} else {
-			$objects[] = $object;
-		}
-	}
+	list($objects, $errors) = samples_json($filter, "temperatures.jsonsamples");
+	if ($errors && $_GET["debug"]){
+		print("json errors: <br>".implode($errors, "<br>"));
+	} 
         $data = $objects;
-        if(!$data) { print("json error: ".json_last_error()); }
        
 ?><div id="timeline"></div>
 <script>
