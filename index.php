@@ -66,16 +66,35 @@ case 'GET':
 data = [
 <?
         foreach(array_reverse($data) as $line)
-		print("[new Date(\"".$line->time."\"), ".$line->temperature->{"value"}."], ");
+		print("[new Date(".($line->timestamp*1000)."), \n".$line->temperature->{"value"}."], ");
 ?>
 ];
 </script>
 <table border='1'>
 <tr><th>Time</th><th>Temperature (&deg;C)</th></tr>
 <script>
+if (true) {
+	var elements = data.map(function(sample){
+		var tr = document.createElement("tr");
+
+		var td = document.createElement("td");
+		var time = document.createTextNode(sample[0].toLocaleString());
+		td.appendChild(time);
+		tr.appendChild(td);
+
+		td = document.createElement("td");
+		var temperature = document.createTextNode(sample[1]);
+		td.appendChild(temperature);
+		tr.appendChild(td);
+
+		return tr;
+	});
+	elements.forEach(function(e){ document.getElementById("table").appendChild(e); });
+} else {
 	data.forEach(function(sample){
 		document.write("<tr><td>" + sample[0].toLocaleString() + "</td><td>" + sample[1] + "</td></tr>");
         });
+}
 </script>
 </table>
 <?

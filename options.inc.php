@@ -33,6 +33,9 @@ function samples_json($filter, $file) {
 		if (!$object) {
 			$errors[] = "${n}: ${line} ----> json error ".json_last_error();
 		} else {
+			$t = new DateTime($object->time);
+			$ts = $t->getTimestamp();
+			$object->timestamp = $ts;
 			$objects[] = $object;
 		}
 	}
