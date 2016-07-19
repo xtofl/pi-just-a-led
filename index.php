@@ -39,6 +39,27 @@ $filter = filter();
         var chart = new google.visualization.LineChart(container);
         chart.draw(dataTable, options);
       }
+
+var populate_table = function() {
+	var elements = data.map(function(sample){
+			var tr = document.createElement("tr");
+
+			var td = document.createElement("td");
+			var time = document.createTextNode(sample[0].toLocaleString());
+			td.appendChild(time);
+			tr.appendChild(td);
+
+			td = document.createElement("td");
+			var temperature = document.createTextNode(sample[1]);
+			td.appendChild(temperature);
+			tr.appendChild(td);
+
+			return tr;
+			});
+	var table = document.getElementById("temperature_table");
+	elements.forEach(function(e){ table.appendChild(e); });
+};
+window.addEventListener('DOMContentLoaded', populate_table, false);
     </script>
 </head>
 <body>
@@ -70,32 +91,18 @@ data = [
 ?>
 ];
 </script>
-<table border='1'>
-<tr><th>Time</th><th>Temperature (&deg;C)</th></tr>
+<table border='1' id="temperature_table">
+<thead><th>Time</th><th>Temperature (&deg;C)</th></thead>
+<tbody>
 <script>
 if (true) {
-	var elements = data.map(function(sample){
-		var tr = document.createElement("tr");
-
-		var td = document.createElement("td");
-		var time = document.createTextNode(sample[0].toLocaleString());
-		td.appendChild(time);
-		tr.appendChild(td);
-
-		td = document.createElement("td");
-		var temperature = document.createTextNode(sample[1]);
-		td.appendChild(temperature);
-		tr.appendChild(td);
-
-		return tr;
-	});
-	elements.forEach(function(e){ document.getElementById("table").appendChild(e); });
 } else {
 	data.forEach(function(sample){
 		document.write("<tr><td>" + sample[0].toLocaleString() + "</td><td>" + sample[1] + "</td></tr>");
         });
 }
 </script>
+</tbody>
 </table>
 <?
 	break;
