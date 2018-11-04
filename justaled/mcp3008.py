@@ -9,55 +9,30 @@ pin_names = [
 
 
 class Mcp3008:
-    def __init__(self, io, reference_voltage=5.0):
-        self.clk = io.outpin(23)
-        self.dout = io.inpin(29)
-        self.din = io.outpin(31)
-        self.not_cs = io.outpin(33)
+    def __init__(self, spi, reference_voltage=5.0):
+        self.spi = spi
         self.vref = reference_voltage
 
-    def start(self):
-        self.clk.start()
-        self.dout.start()
-        self.din.start()
-        self.not_cs.start()
-
     def read(self, channel): #single-ended
-        raw = self.read_raw(channel)
-        voltage = raw * self.vref / 1024.0
+        raw = self.read_raw(channel)[0]
+        print("raw: {}".format(raw))
+        voltage = int(raw) * self.vref / 1024.0
         return voltage
 
     def read_raw(self, channel): #single-ended
         if channel < 0 or channel > 7:
             raise RuntimeError("channel must be between 0 and 7")
-        self.not_cs.on()
-        self.clk.off()
-        self.not_cs.off()
         self.request_conversion(channel)
-        result = self.read_result()
-        self.not_cs.off()
-        return result
+        return self.read_result()
 
     def request_conversion(self, channel):
+        print("channel: {}".format(channel))
         command = int('11000', 2) | channel
         bits = command << 3
-        for _ in range(5):
-           self.din.set(bits & 0x80)
-           self.clk.on()
-           self.clk.off()
-           bits <<= 1
+        print("xfer: {}".format(self.spi.writebytes([bits])))
 
     def read_result(self):
-        adcout = 0
-        for _ in range(12):
-           self.clk.on()
-           self.clk.off()
-           adcout <<= 1
-           bit = self.dout.on()
-           adcout |= bit
-
-        adcout >>= 1
-        return adcout
+        return self.spi.readbytes(1)
 
 def main():
     import sys
